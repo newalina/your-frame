@@ -1,45 +1,47 @@
-import { getFrameMetadata } from 'frog/next'
-import type { Metadata } from 'next'
-import Image from 'next/image'
-
-import styles from './page.module.css'
+import { getFrameMetadata } from "frog/next";
+import type { Metadata } from "next";
+import Image from "next/image";
+import Form from "./components/Form";
+import FormWrapper from "./components/FormWrapper";
+import styles from "./page.module.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   const frameTags = await getFrameMetadata(
-    `${process.env.VERCEL_URL || 'http://localhost:3000'}/api`,
-  )
+    `${process.env.VERCEL_URL || "http://localhost:3000"}/api`
+  );
   return {
     other: frameTags,
-  }
+  };
 }
 
 export default function Home() {
   return (
     <main className={styles.main}>
       <div className={styles.description}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <p>
+        <FormWrapper />
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {/* <p>
             Get started by editing&nbsp;
             <code className={styles.code}>app/page.tsx</code>
           </p>
           <p>
-            Head to{' '}
+            Head to{" "}
             <a
               href="/api/dev"
-              style={{ display: 'inline', fontWeight: 'semibold' }}
+              style={{ display: "inline", fontWeight: "semibold" }}
             >
               <code className={styles.code}>localhost:3000/api</code>
-            </a>{' '}
+            </a>{" "}
             for your frame endpoint.
-          </p>
+          </p> */}
         </div>
-        <div>
+        {/* <div>
           <a
             href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
             target="_blank"
             rel="noopener noreferrer"
           >
-            By{' '}
+            By{" "}
             <Image
               src="/vercel.svg"
               alt="Vercel Logo"
@@ -112,8 +114,8 @@ export default function Home() {
           <p>
             Instantly deploy your Next.js site to a shareable URL with Vercel.
           </p>
-        </a>
+        </a> */}
       </div>
     </main>
-  )
+  );
 }

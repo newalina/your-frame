@@ -1,87 +1,178 @@
 /** @jsxImportSource frog/jsx */
 
-import { Button, Frog, TextInput } from 'frog'
-import { devtools } from 'frog/dev'
-// import { neynar } from 'frog/hubs'
-import { handle } from 'frog/next'
-import { serveStatic } from 'frog/serve-static'
+import { Button, Frog } from "frog";
+import { devtools } from "frog/dev";
+import { handle } from "frog/next";
+import { serveStatic } from "frog/serve-static";
+import {
+  incrementOption1,
+  incrementOption2,
+  getState,
+  saveFormData,
+  getFormData,
+} from "../../utils/state";
 
 const app = new Frog({
-  assetsPath: '/',
-  basePath: '/api',
-  // Supply a Hub to enable frame verification.
-  // hub: neynar({ apiKey: 'NEYNAR_FROG_FM' })
-  title: 'Frog Frame',
-})
+  assetsPath: "/",
+  basePath: "/api",
+  title: "Your Kramer Frame",
+});
 
-// Uncomment to use Edge Runtime
-// export const runtime = 'edge'
+app.use("/*", serveStatic({ root: "./public" }));
 
-app.frame('/', (c) => {
-  const { buttonValue, inputText, status } = c
-  const fruit = inputText || buttonValue
+app.frame("/", (c) => {
+  const formData = getFormData(); // Function to get saved form data
+
   return c.res({
+    action: "/submit",
     image: (
       <div
         style={{
-          alignItems: 'center',
-          background:
-            status === 'response'
-              ? 'linear-gradient(to right, #432889, #17101F)'
-              : 'black',
-          backgroundSize: '100% 100%',
-          display: 'flex',
-          flexDirection: 'column',
-          flexWrap: 'nowrap',
-          height: '100%',
-          justifyContent: 'center',
-          textAlign: 'center',
-          width: '100%',
+          display: "flex",
+          alignItems: "center",
+          backgroundImage: `url(https://www.kramerapp.com/kramer_pic.png)`,
+          backgroundSize: "100% 200%",
+          backgroundPosition: "0 -50%",
+          filter: "brightness(50%)",
+          flexDirection: "column",
+          flexWrap: "nowrap",
+          height: "100%",
+          justifyContent: "center",
+          textAlign: "center",
+          width: "100%",
         }}
       >
         <div
           style={{
-            color: 'white',
+            display: "flex",
+            color: "white",
             fontSize: 60,
-            fontStyle: 'normal',
-            letterSpacing: '-0.025em',
+            fontStyle: "normal",
+            letterSpacing: "-0.025em",
             lineHeight: 1.4,
-            marginTop: 30,
-            padding: '0 120px',
-            whiteSpace: 'pre-wrap',
+            padding: "0 120px",
+            whiteSpace: "pre-wrap",
+            textAlign: "center",
+            filter: "brightness(100%)",
           }}
         >
-          {status === 'response'
-            ? `Nice choice.${fruit ? ` ${fruit.toUpperCase()}!!` : ''}`
-            : 'Welcome!'}
+          {formData.title}
         </div>
       </div>
     ),
     intents: [
-      <TextInput placeholder="Enter custom fruit..." />,
-      <Button value="apples">Apples</Button>,
-      <Button value="oranges">Oranges</Button>,
-      <Button value="bananas">Bananas</Button>,
-      status === 'response' && <Button.Reset>Reset</Button.Reset>,
+      <Button value="option1">{formData.options[0]}</Button>,
+      <Button value="option2">{formData.options[1]}</Button>,
     ],
-  })
-})
+  });
+});
 
-devtools(app, { serveStatic })
+app.frame("/submit", async (c) => {
+  const { title, options, selectedImage } = await c.req.json(); // Read form data from request
 
-export const GET = handle(app)
-export const POST = handle(app)
+  saveFormData({
+    title,
+    options,
+    image: selectedImage,
+  });
 
-// NOTE: That if you are using the devtools and enable Edge Runtime, you will need to copy the devtools
-// static assets to the public folder. You can do this by adding a script to your package.json:
-// ```json
-// {
-//   scripts: {
-//     "copy-static": "cp -r ./node_modules/frog/_lib/ui/.frog ./public/.frog"
-//   }
-// }
-// ```
-// Next, you'll want to set up the devtools to use the correct assets path:
-// ```ts
-// devtools(app, { assetsPath: '/.frog' })
-// ```
+  const { buttonValue } = c;
+
+  if (buttonValue === "option1") incrementOption1();
+  if (buttonValue === "option2") incrementOption2();
+
+  return c.res({
+    image: (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          backgroundImage: `url(https://www.kramerapp.com/kramer_pic.png)`,
+          backgroundSize: "100% 200%",
+          backgroundPosition: "0 -50%",
+          filter: "brightness(75%)",
+          flexDirection: "column",
+          flexWrap: "nowrap",
+          height: "100%",
+          justifyContent: "center",
+          textAlign: "center",
+          width: "100%",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            color: "white",
+            fontSize: 60,
+            fontStyle: "normal",
+            letterSpacing: "-0.025em",
+            lineHeight: 1.4,
+            padding: "0 120px",
+            whiteSpace: "pre-wrap",
+            textAlign: "center",
+            filter: "brightness(100%)",
+          }}
+        >
+          You selected: {buttonValue}
+        </div>
+      </div>
+    ),
+    intents: [
+      <Button.Link href="https://www.newalina.com/">Follow</Button.Link>,
+      <Button action="/view">View</Button>,
+    ],
+  });
+});
+
+app.frame("/view", (c) => {
+  const state = getState();
+
+  return c.res({
+    image: (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          backgroundImage: `url(https://www.kramerapp.com/kramer_pic.png)`,
+          backgroundSize: "100% 200%",
+          backgroundPosition: "0 -50%",
+          filter: "brightness(75%)",
+          flexDirection: "column",
+          flexWrap: "nowrap",
+          height: "100%",
+          justifyContent: "center",
+          textAlign: "center",
+          width: "100%",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            color: "white",
+            fontSize: 40,
+            fontStyle: "normal",
+            letterSpacing: "-0.025em",
+            lineHeight: 1.4,
+            padding: "0 120px",
+            whiteSpace: "pre-wrap",
+            textAlign: "center",
+            filter: "brightness(100%)",
+          }}
+        >
+          <span style={{ margin: "0 250px 0 10px" }}>
+            option1: {state.option1Count.toString()}
+          </span>
+          <span>option2: {state.option2Count.toString()}</span>
+        </div>
+      </div>
+    ),
+    intents: [
+      <Button.Link href="https://www.newalina.com/">Follow</Button.Link>,
+    ],
+  });
+});
+
+devtools(app, { serveStatic });
+
+export const GET = handle(app);
+export const POST = handle(app);
